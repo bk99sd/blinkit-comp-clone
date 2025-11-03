@@ -3,4 +3,6 @@
     <string name="label_hint_search">Search</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="label_view_cart">View Cart</string>
+    <string name="label_item_count">%1$d items</string>
 </resources>

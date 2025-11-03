@@ -1,4 +1,4 @@
-package com.example.blinkitclone.ui
+package com.example.blinkitclone.ui.components.cart
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.mutableStateListOf
