@@ -5,7 +5,9 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,8 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -138,21 +138,29 @@ fun CartCard(
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var vis by remember { mutableStateOf(false) }
 
     LaunchedEffect(visible) {
         if (visible) {
+            vis = true
             delay(500) // Wait 500ms before expanding
             expanded = true
         } else {
             expanded = false
+            delay(500)
+            vis = false
         }
     }
 
     AnimatedVisibility(
-        visible = visible,
+        visible = vis,
         enter = slideInVertically(
             animationSpec = tween(500, easing = FastOutSlowInEasing),
             initialOffsetY = { it }, // Slide from bottom (full height offset)
+        ),
+        exit = slideOutVertically(
+            animationSpec = tween(500, easing = FastOutSlowInEasing),
+            targetOffsetY = { it },
         ),
     ) {
         Row(
@@ -180,6 +188,9 @@ fun CartCard(
                 visible = expanded,
                 enter = expandHorizontally(
                     animationSpec = tween(400, easing = FastOutSlowInEasing)
+                ),
+                exit = shrinkHorizontally(
+                    animationSpec = tween(400, easing = FastOutSlowInEasing),
                 ),
             ) {
                 Row(
@@ -232,42 +243,6 @@ fun SwapStack(
                 modifier = Modifier.offset(x = xOffset),
                 backgroundColor = colorResource(colors[(item.id).mod(colors.size)]),
             )
-        }
-    }
-}
-
-@Composable
-fun SwapStack1(
-    limit: Int,
-    modifier: Modifier = Modifier,
-    items: List<CartItemBrief>,
-) {
-    val visibleItems = items.sortedBy { it.id }.takeLast(limit)
-    val itemSize = 40.dp
-    val overlap = 20.dp
-
-    Layout(
-        content = {
-            visibleItems.forEachIndexed { index, item ->
-                CircularImage(
-                    imageRes = R.drawable.drone,
-                    modifier = Modifier.size(itemSize),
-                    backgroundColor = colorResource(colors[item.id % colors.size])
-                )
-            }
-        },
-        modifier = modifier
-    ) { measurables, constraints ->
-        val placeables = measurables.map { it.measure(constraints) }
-
-        val totalWidth = itemSize.roundToPx() + (visibleItems.size - 1) * overlap.roundToPx()
-        val totalHeight = itemSize.roundToPx()
-
-        layout(totalWidth, totalHeight) {
-            placeables.forEachIndexed { index, placeable ->
-                val x = index * (itemSize.roundToPx() - overlap.roundToPx())
-                placeable.placeRelative(x, 0)
-            }
         }
     }
 }
