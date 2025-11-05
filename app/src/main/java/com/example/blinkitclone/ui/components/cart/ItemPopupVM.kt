@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 class ItemPopupVM: ViewModel() {
     val items = mutableStateListOf<CartItemBrief>()
 
+    private var lastItemRemoved: Int? = null
+
     private val _uiState = MutableStateFlow<ItemPopupState>(
         ItemPopupState(
             items = items,
@@ -20,6 +22,7 @@ class ItemPopupVM: ViewModel() {
         items.add(item)
         _uiState.value = ItemPopupState(
             items = items,
+            itemAdded = item,
         )
     }
 
@@ -31,10 +34,18 @@ class ItemPopupVM: ViewModel() {
     }
 
     fun remove(item: CartItemBrief) {
+        lastItemRemoved = items.indexOf(item)
         items.remove(item)
         _uiState.value = ItemPopupState(
             items = items,
+            itemRemoved = item,
         )
+    }
+
+    fun getLastItemRemoved(): Int? {
+        val item = lastItemRemoved
+        lastItemRemoved = null
+        return item
     }
 
     fun clear() {
@@ -74,6 +85,8 @@ class ItemPopupVM: ViewModel() {
 
     data class ItemPopupState(
         val items: List<CartItemBrief>,
+        val itemAdded: CartItemBrief? = null,
+        val itemRemoved: CartItemBrief? = null,
     )
 
     data class CartItemBrief(

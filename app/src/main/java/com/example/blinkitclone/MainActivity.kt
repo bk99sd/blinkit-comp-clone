@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,19 +28,38 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.blinkitclone.ui.components.cart.ItemPop
+import com.example.blinkitclone.ui.components.cart.ItemPopupVM
+import com.example.blinkitclone.ui.components.cart.ItemPopupVM.CartItemBrief
 import com.example.blinkitclone.ui.search.SearchBar
 import com.example.blinkitclone.ui.theme.BlinkitCloneTheme
 
 class MainActivity : ComponentActivity() {
+    private val itemPopupVM: ItemPopupVM by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             BlinkitCloneTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                    ItemPop(
+                        modifier = Modifier.padding(innerPadding),
+                        screenState = itemPopupVM.uiState,
+                        onAdd = {
+                            itemPopupVM.add(
+                                CartItemBrief(
+                                    id = (itemPopupVM.lastId() + 1),
+                                ),
+                            )
+                        },
+                        onRemove = {
+                            itemPopupVM.remove(
+                                CartItemBrief(
+                                    id = (itemPopupVM.lastId()),
+                                ),
+                            )
+                        }
                     )
                 }
             }

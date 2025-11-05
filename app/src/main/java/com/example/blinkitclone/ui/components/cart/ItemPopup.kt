@@ -1,8 +1,11 @@
 package com.example.blinkitclone.ui.components.cart
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -44,11 +48,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.blinkitclone.R
 import com.example.blinkitclone.ui.components.cart.ItemPopupVM.CartItemBrief
 import com.example.blinkitclone.ui.components.common.CircularImage
 import com.example.blinkitclone.ui.theme.Typography
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 
 val colors = listOf(
     R.color.teal_200,
@@ -78,8 +84,28 @@ val colors = listOf(
 )
 
 @Composable
+fun ItemPop(
+    modifier: Modifier = Modifier,
+    screenState: StateFlow<ItemPopupVM.ItemPopupState>,
+    onAdd: () -> Unit,
+    onRemove: () -> Unit,
+) {
+    val uiState by screenState.collectAsStateWithLifecycle()
+    CartItemPop(
+        modifier = modifier,
+        items = uiState.items,
+        onAdd = onAdd,
+        onRemove = onRemove,
+        addedItem = uiState.itemAdded,
+        removedItem = uiState.itemRemoved
+    )
+}
+
+@Composable
 fun CartItemPop(
     items: List<CartItemBrief>,
+    addedItem: CartItemBrief?,
+    removedItem: CartItemBrief?,
     modifier: Modifier = Modifier,
     onAdd: () -> Unit = {},
     onRemove: () -> Unit = {},
@@ -127,6 +153,8 @@ fun CartItemPop(
         CartCard(
             items = items,
             visible = visible,
+            addedItem = addedItem,
+            removedItem = removedItem,
         )
     }
 }
@@ -135,6 +163,8 @@ fun CartItemPop(
 fun CartCard(
     items: List<CartItemBrief>,
     visible: Boolean,
+    addedItem: CartItemBrief?,
+    removedItem: CartItemBrief?,
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -182,6 +212,8 @@ fun CartCard(
             SwapStack(
                 limit = 3,
                 items = items,
+                addedItem = addedItem,
+                removedItem = removedItem,
             )
 
             AnimatedVisibility(
@@ -227,22 +259,90 @@ fun CartCard(
 fun SwapStack(
     limit: Int,
     items: List<CartItemBrief>,
+    addedItem: CartItemBrief?,
+    removedItem: CartItemBrief?,
     modifier: Modifier = Modifier,
     overlap: Dp = 20.dp,
     itemSize: Dp = 40.dp,
 ) {
     val visibleItems = items.sortedBy { it.id }.takeLast(limit)
 
+    // Track previously visible item IDs
+    val previousItems = remember { mutableStateOf(mapOf<Int, Int>()) }
+
     Box(
-        modifier = modifier.width(itemSize + (overlap * (visibleItems.size - 1))),
+        modifier = modifier
+            .width(itemSize + (overlap * (visibleItems.size - 1))),
     ) {
         visibleItems.forEachIndexed{ index, item ->
-            val xOffset by animateDpAsState(targetValue = ((overlap * index)))
+            val targetXOffset = overlap * index
+
+            val targetYOffset = 0f
+
+            // Check if this is a new item
+            val isItemAdded = item.id == addedItem?.id
+
+            val yOffset = remember(item.id) {
+                Animatable(if (isItemAdded) (-itemSize * 3).value else 0f)
+            }
+
+            LaunchedEffect(addedItem) {
+                if (isItemAdded) {
+                    yOffset.animateTo(
+                        targetValue = targetYOffset,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy)
+                    )
+                }
+            }
+
+            val xOffset by animateDpAsState(
+                targetValue = targetXOffset,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy)
+            )
+
             CircularImage(
                 imageRes = R.drawable.drone,
-                modifier = Modifier.offset(x = xOffset),
+                modifier = Modifier.offset(x = xOffset, y = yOffset.value.dp),
                 backgroundColor = colorResource(colors[(item.id).mod(colors.size)]),
             )
+        }
+
+
+        if(removedItem != null && previousItems.value.containsKey(removedItem.id)) {
+            val index = previousItems.value[removedItem.id] ?: 0
+
+            val targetXOffset = overlap * index
+
+            val targetYOffset = (-itemSize * 3)
+            val yOffset = remember(removedItem.id) {
+                Animatable(0f)
+            }
+
+            var visible by remember { mutableStateOf(true) }
+
+            LaunchedEffect(removedItem) {
+                yOffset.animateTo(
+                    targetValue = targetYOffset.value,
+                    animationSpec = tween(durationMillis = 600)
+                )
+                delay(600)
+                visible = false
+            }
+
+            if (visible) {
+                CircularImage(
+                    imageRes = R.drawable.drone,
+                    modifier = Modifier.offset(x = targetXOffset, y = yOffset.value.dp),
+                    backgroundColor = colorResource(colors[(removedItem.id).mod(colors.size)]),
+                )
+            }
+        }
+
+        // Update tracked IDs after composition
+        LaunchedEffect(visibleItems) {
+            previousItems.value = visibleItems.mapIndexed { index, item ->
+                item.id to index
+            }.toMap()
         }
     }
 }
@@ -256,29 +356,30 @@ private fun PreviewCircularImage() {
 @Composable
 @Preview
 private fun PreviewSwapStack() {
-    SwapStack(
-        limit = 3,
-        items = listOf(
-            CartItemBrief(
-                id = 1,
-            ),
-            CartItemBrief(
-                id = 2,
-            ),
-            CartItemBrief(
-                id = 3,
-            ),
-            CartItemBrief(
-                id = 4,
-            )
-        )
-    )
+//    SwapStack(
+//        limit = 3,
+//        items = listOf(
+//            CartItemBrief(
+//                id = 1,
+//            ),
+//            CartItemBrief(
+//                id = 2,
+//            ),
+//            CartItemBrief(
+//                id = 3,
+//            ),
+//            CartItemBrief(
+//                id = 4,
+//            )
+//        )
+//    )
 }
 
 @Composable
 @Preview
 private fun PreviewItemPop() {
     val viewModel = ItemPopupVM()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     CartItemPop(
         items = viewModel.items,
         onAdd = {
@@ -294,7 +395,9 @@ private fun PreviewItemPop() {
                     id = (viewModel.lastId()),
                 ),
             )
-        }
+        },
+        addedItem = uiState.itemAdded,
+        removedItem = uiState.itemRemoved
     )
 }
 
@@ -305,5 +408,7 @@ private fun PreviewCartCard() {
     CartCard(
         items = viewModel.items,
         visible = true,
+        addedItem = null,
+        removedItem = null,
     )
 }
