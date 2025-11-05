@@ -36,6 +36,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -270,13 +272,23 @@ fun SwapStack(
     // Track previously visible item IDs
     val previousItems = remember { mutableStateOf(mapOf<Int, Int>()) }
 
+    // Track items currently animating out
+    val animatingOutItems = remember { mutableStateMapOf<Int, Pair<CartItemBrief, Int>>() }
+
+    // Capture removed item before it changes
+    LaunchedEffect(removedItem) {
+        if (removedItem != null && previousItems.value.containsKey(removedItem.id)) {
+            val index = previousItems.value[removedItem.id] ?: 0
+            animatingOutItems[removedItem.id] = removedItem to index
+        }
+    }
+
     Box(
         modifier = modifier
             .width(itemSize + (overlap * (visibleItems.size - 1))),
     ) {
         visibleItems.forEachIndexed{ index, item ->
             val targetXOffset = overlap * index
-
             val targetYOffset = 0f
 
             // Check if this is a new item
@@ -307,33 +319,30 @@ fun SwapStack(
             )
         }
 
+        // Render all animating out items
+        animatingOutItems.forEach { (itemId, pair) ->
+            val (item, index) = pair
+            key(itemId) {
+                val targetXOffset = overlap * index
+                val targetYOffset = (-itemSize * 3)
 
-        if(removedItem != null && previousItems.value.containsKey(removedItem.id)) {
-            val index = previousItems.value[removedItem.id] ?: 0
+                val yOffset = remember {
+                    Animatable(0f)
+                }
 
-            val targetXOffset = overlap * index
+                LaunchedEffect(Unit) {
+                    yOffset.animateTo(
+                        targetValue = targetYOffset.value,
+                        animationSpec = tween(durationMillis = 600)
+                    )
+                    // Remove from map after animation completes
+                    animatingOutItems.remove(itemId)
+                }
 
-            val targetYOffset = (-itemSize * 3)
-            val yOffset = remember(removedItem.id) {
-                Animatable(0f)
-            }
-
-            var visible by remember { mutableStateOf(true) }
-
-            LaunchedEffect(removedItem) {
-                yOffset.animateTo(
-                    targetValue = targetYOffset.value,
-                    animationSpec = tween(durationMillis = 600)
-                )
-                delay(600)
-                visible = false
-            }
-
-            if (visible) {
                 CircularImage(
                     imageRes = R.drawable.drone,
                     modifier = Modifier.offset(x = targetXOffset, y = yOffset.value.dp),
-                    backgroundColor = colorResource(colors[(removedItem.id).mod(colors.size)]),
+                    backgroundColor = colorResource(colors[(item.id).mod(colors.size)]),
                 )
             }
         }
