@@ -169,28 +169,24 @@ fun CartCard(
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var vis by remember { mutableStateOf(false) }
 
     LaunchedEffect(visible) {
         if (visible) {
-            vis = true
             delay(500) // Wait 500ms before expanding
             expanded = true
         } else {
             expanded = false
-            delay(500)
-            vis = false
         }
     }
 
     AnimatedVisibility(
-        visible = vis,
+        visible = visible,
         enter = slideInVertically(
             animationSpec = tween(500, easing = FastOutSlowInEasing),
             initialOffsetY = { it }, // Slide from bottom (full height offset)
         ),
         exit = slideOutVertically(
-            animationSpec = tween(500, easing = FastOutSlowInEasing),
+            animationSpec = tween(500, easing = FastOutSlowInEasing, delayMillis = 500),
             targetOffsetY = { it },
         ),
     ) {
