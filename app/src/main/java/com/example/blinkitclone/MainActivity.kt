@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.example.blinkitclone.ui.components.cart.ItemPop
 import com.example.blinkitclone.ui.components.cart.ItemPopupVM
 import com.example.blinkitclone.ui.components.cart.ItemPopupVM.CartItemBrief
+import com.example.blinkitclone.ui.components.home.Header
 import com.example.blinkitclone.ui.search.SearchBar
 import com.example.blinkitclone.ui.theme.BlinkitCloneTheme
 
@@ -43,23 +44,26 @@ class MainActivity : ComponentActivity() {
         setContent {
             BlinkitCloneTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ItemPop(
-                        modifier = Modifier.padding(innerPadding),
-                        screenState = itemPopupVM.uiState,
-                        onAdd = {
-                            itemPopupVM.add(
-                                CartItemBrief(
-                                    id = (itemPopupVM.lastId() + 1),
-                                ),
-                            )
-                        },
-                        onRemove = {
-                            itemPopupVM.remove(
-                                CartItemBrief(
-                                    id = (itemPopupVM.lastId()),
-                                ),
-                            )
-                        }
+//                    ItemPop(
+//                        modifier = Modifier.padding(innerPadding),
+//                        screenState = itemPopupVM.uiState,
+//                        onAdd = {
+//                            itemPopupVM.add(
+//                                CartItemBrief(
+//                                    id = (itemPopupVM.lastId() + 1),
+//                                ),
+//                            )
+//                        },
+//                        onRemove = {
+//                            itemPopupVM.remove(
+//                                CartItemBrief(
+//                                    id = (itemPopupVM.lastId()),
+//                                ),
+//                            )
+//                        }
+//                    )
+                    Header(
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
             }

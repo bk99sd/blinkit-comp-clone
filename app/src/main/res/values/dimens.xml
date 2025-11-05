@@ -10,4 +10,5 @@
     <dimen name="xhuge_spacing">32dp</dimen>
     <dimen name="giant_spacing">40dp</dimen>
     <dimen name="xgiant_spacing">44dp</dimen>
+    <dimen name="radius">10dp</dimen>
 </resources>
