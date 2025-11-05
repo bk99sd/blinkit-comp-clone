@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -277,15 +276,23 @@ fun SwapStack(
 
     // Capture removed item before it changes
     LaunchedEffect(removedItem) {
-        if (removedItem != null && previousItems.value.containsKey(removedItem.id)) {
+        if (removedItem != null && previousItems.value.containsKey(removedItem.id) && visibleItems.isNotEmpty()) {
             val index = previousItems.value[removedItem.id] ?: 0
             animatingOutItems[removedItem.id] = removedItem to index
         }
     }
 
+    val isLastItem = visibleItems.isEmpty() && removedItem != null
+
+    val boxWidth = if (isLastItem){
+        itemSize
+    } else {
+        itemSize + (overlap * (visibleItems.size - 1))
+    }
+
     Box(
         modifier = modifier
-            .width(itemSize + (overlap * (visibleItems.size - 1))),
+            .width(boxWidth),
     ) {
         visibleItems.forEachIndexed{ index, item ->
             val targetXOffset = overlap * index
@@ -352,6 +359,15 @@ fun SwapStack(
             previousItems.value = visibleItems.mapIndexed { index, item ->
                 item.id to index
             }.toMap()
+        }
+
+        if (isLastItem) {
+            // Show the last item
+            CircularImage(
+                imageRes = R.drawable.drone,
+                modifier = Modifier.offset(x = 0.dp).align(Alignment.CenterStart),
+                backgroundColor = colorResource(colors[(removedItem.id).mod(colors.size)]),
+            )
         }
     }
 }
