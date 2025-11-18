@@ -9,7 +9,22 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="colorDarkGray">#4a4a48</color>
+    <color name="colorBluishGray">#B0717383</color>
 
     <color name="colorTranslucent">#2F000000</color>
     <color name="green">#4CAF50</color>
+
+    <!-- Product card background colors -->
+    <color name="productLightBlue">#E3F2FD</color>
+    <color name="productLightCyan">#E1F5FE</color>
+    <color name="productLightYellow">#FFF9C4</color>
+    <color name="productLightOrange">#FFE0B2</color>
+    <color name="productCream">#FFF8E1</color>
+    <color name="productLightPink">#FCE4EC</color>
+    <color name="productLightRed">#FFEBEE</color>
+    <color name="productLightGreen">#E8F5E9</color>
+    <color name="productLightPurple">#F3E5F5</color>
+    <color name="productLightTeal">#E0F2F1</color>
+    <color name="productLightBrown">#EFEBE9</color>
+    <color name="productLightGray">#F5F5F5</color>
 </resources>
