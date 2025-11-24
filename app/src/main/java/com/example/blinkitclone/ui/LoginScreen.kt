@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,9 +25,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -70,109 +73,133 @@ fun LoginScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(R.color.white))
     ) {
-        // Scrolling product background
-        ScrollingProductBackground()
+        Column {
+            Box {
+                ScrollingProductBackground()
 
-        // Skip login button at top right
-        TextButton(
-            onClick = onSkipLogin,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 24.dp, end = 16.dp),
-            elevation = ButtonDefaults.elevatedButtonElevation(
-                defaultElevation = 2.dp
-            ),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorResource(R.color.white),
-            )
-        ) {
-            Text(
-                text = "Skip login",
-                color = Color.Black,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(350.dp))
-
-            // Blinkit logo
-            Image(
-                modifier = Modifier.size(80.dp),
-                painter = painterResource(id = R.drawable.img),
-                contentDescription = null,
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Title
-            Text(
-                text = "India's last minute app",
-                style = MaterialTheme.typography.displayLarge,
-                color = Color.Black,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Subtitle
-            Text(
-                text = "Log In or Sign Up",
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.Gray,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Phone number input
-            PhoneNumberInput(
-                phoneNumber = state.phoneNumber,
-                onPhoneNumberChange = { onEvent(LoginEvent.OnPhoneNumberChange(it)) }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Continue button
-            Button(
-                onClick = {
-                    onEvent(LoginEvent.OnContinueClick)
-                    if (state.isValidPhoneNumber) {
-                        onNavigateToHome()
-                    }
-                },
-                enabled = state.isValidPhoneNumber && !state.isLoading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.green),
-                    disabledContainerColor = colorResource(R.color.colorBluishGray),
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color.White
+                // Skip login button at top right
+                TextButton(
+                    onClick = onSkipLogin,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 24.dp, end = 16.dp),
+                    elevation = ButtonDefaults.elevatedButtonElevation(
+                        defaultElevation = 2.dp
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(R.color.white),
                     )
-                } else {
+                ) {
                     Text(
-                        text = "Continue",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Color.White
+                        text = "Skip login",
+                        color = Color.Black,
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(36.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-10).dp)
+                    .height(60.dp)
+                    .background(
+                        brush = remember {
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.White,
+                                    Color.White.copy(alpha = 0.5f),
+                                    Color.White.copy(alpha = 0.3f),
+                                    Color.White.copy(alpha = 0.1f),
+                                    Color.Transparent,
+                                )
+                            )
+                        }
+                    )
+            ) {  }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset(y = (-60).dp)
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Blinkit logo
+                Image(
+                    modifier = Modifier.size(80.dp),
+                    painter = painterResource(id = R.drawable.img),
+                    contentDescription = null,
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Title
+                Text(
+                    text = "India's last minute app",
+                    style = MaterialTheme.typography.displayLarge,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Subtitle
+                Text(
+                    text = "Log In or Sign Up",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Phone number input
+                PhoneNumberInput(
+                    phoneNumber = state.phoneNumber,
+                    onPhoneNumberChange = { onEvent(LoginEvent.OnPhoneNumberChange(it)) }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Continue button
+                Button(
+                    onClick = {
+                        onEvent(LoginEvent.OnContinueClick)
+                        if (state.isValidPhoneNumber) {
+                            onNavigateToHome()
+                        }
+                    },
+                    enabled = state.isValidPhoneNumber && !state.isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(R.color.green),
+                        disabledContainerColor = colorResource(R.color.colorBluishGray),
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (state.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White
+                        )
+                    } else {
+                        Text(
+                            text = "Continue",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(36.dp))
+            }
         }
 
         // Fixed footer with terms and privacy text
