@@ -1,6 +1,8 @@
 package com.example.blinkitclone.ui.home
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,13 +17,17 @@ fun HomeScreen() {
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            contentAlignment = Alignment.Center
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
+            // Welcome section
             Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -40,6 +46,11 @@ fun HomeScreen() {
                     color = Color.Gray
                 )
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // BestSeller component
+            BestSeller()
         }
     }
 }
