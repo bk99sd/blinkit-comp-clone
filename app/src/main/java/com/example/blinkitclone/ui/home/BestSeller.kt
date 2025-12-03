@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,7 +29,6 @@ fun BestSeller(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFFF8F8F8))
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         // Title
@@ -36,7 +36,7 @@ fun BestSeller(
             text = "Bestsellers",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF1A1A1A),
+            color = Color.White,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
