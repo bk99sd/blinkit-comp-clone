@@ -13,4 +13,8 @@ https://github.com/user-attachments/assets/0c89a37a-8eb7-4c60-82cf-986c73ace3a4
 26th Nov, 2025 - Bestsellers
 <img width="250" height="500" alt="image" src="https://github.com/user-attachments/assets/5638654e-f30b-4773-82ad-03ac3a8b8711" />
 
+3rd Dec, 2025 - Home screen takes shape initial
+
+https://github.com/user-attachments/assets/5327b84c-c724-48ff-b1d8-8a5a69241758
+
 
